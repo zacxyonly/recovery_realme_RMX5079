@@ -50,6 +50,7 @@ jobs:
     - name: Checkout Device Tree
       uses: actions/checkout@v4
       with:
+        ref: 'orangefox'
         path: device/realme/RMX5079
 
     - name: Setup Build Packages
