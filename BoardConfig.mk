@@ -23,6 +23,10 @@ TARGET_2ND_CPU_VARIANT := cortex-a55
 TARGET_BOARD_PLATFORM := volcano
 TARGET_BOOTLOADER_BOARD_NAME := volcano
 TARGET_NO_BOOTLOADER := true
+TARGET_OTA_ASSERT_DEVICE := RMX5079,RMX5070,RMX5071,dongfeng
+
+# System Properties
+TARGET_SYSTEM_PROP := $(DEVICE_PATH)/system.prop
 
 # Kernel & Boot Image Header v4
 BOARD_BOOTIMG_HEADER_VERSION := 4
@@ -89,11 +93,23 @@ BOARD_QTI_DYNAMIC_PARTITIONS_PARTITION_LIST := \
     my_engineering \
     my_bigball
 
-# Encryption
+# Init RC & Display
+TARGET_INIT_RC := $(DEVICE_PATH)/recovery/root/init.recovery.qcom.rc
+TARGET_RECOVERY_PIXEL_FORMAT := RGBX_8888
+
+# Encryption & Decryption (Qualcomm FBE v2 + WrappedKey)
 TW_INCLUDE_CRYPTO := true
 TW_INCLUDE_CRYPTO_FBE := true
 TW_INCLUDE_FBE_METADATA_DECRYPT := true
+BOARD_USES_QCOM_FBE_DECRYPTION := true
+TW_USE_FSCRYPT_POLICY := 2
 BOARD_SUPPRESS_SECURE_ERASE := true
+
+# Security Patch & Platform Version Spoofing (Bypass Keystore Anti-Rollback)
+PLATFORM_SECURITY_PATCH := 2099-12-31
+VENDOR_SECURITY_PATCH := 2099-12-31
+PLATFORM_VERSION := 99.87.36
+PLATFORM_VERSION_LAST_STABLE := $(PLATFORM_VERSION)
 
 # TWRP Configuration
 TW_THEME := portrait_hdpi
@@ -111,6 +127,8 @@ TW_INCLUDE_RESETPROP := true
 TW_INCLUDE_LIBRESETPROP := true
 TW_SKIP_ADDITIONAL_RELINK := true
 TW_DEVICE_VERSION := 1
+TW_INCLUDE_EROFS_SUPPORT := true
+TW_INCLUDE_FASTBOOTD := true
 
 # Logging
 TWRP_INCLUDE_LOGCAT := true
@@ -121,8 +139,21 @@ TW_BRIGHTNESS_PATH := "/sys/class/backlight/panel0-backlight/brightness"
 TW_MAX_BRIGHTNESS := 4095
 TW_DEFAULT_BRIGHTNESS := 1024
 
+# Essential recovery libraries & HAL dependencies
+TARGET_RECOVERY_DEVICE_MODULES += \
+    android.hidl.allocator@1.0 \
+    android.hidl.memory@1.0 \
+    android.hidl.memory.token@1.0 \
+    libdmabufheap \
+    libhidlmemory \
+    libion \
+    libnetutils \
+    libxml2 \
+    vendor.display.config@1.0 \
+    vendor.display.config@2.0
+
 # Vendor Kernel Modules
-# TW_LOAD_VENDOR_MODULES: loaded by TWRP at runtime (order matters)
+# TW_LOAD_VENDOR_MODULES: loaded by TWRP at runtime (exact touch IC dependency order)
 TW_LOAD_VENDOR_MODULES := "smem.ko oplusboot.ko buildvariant.ko boot_mode.ko oplus_bsp_boot_projectinfo.ko oplus_charger_present.ko oplus_ftm_mode.ko panel_event_notifier.ko olc.ko device_info.ko oplus_bsp_tp_notify.ko oplus_bsp_fw_update.ko oplus_bsp_tp_custom.ko oplus_bsp_tp_common.ko oplus_bsp_tp_focal_common.ko oplus_bsp_tp_ft3518.ko oplus_bsp_synaptics_tcm2.ko"
 
 # BOARD_VENDOR_KERNEL_MODULES_LOAD: loaded during first stage init
