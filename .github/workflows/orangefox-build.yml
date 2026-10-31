@@ -1,0 +1,175 @@
+name: Build OrangeFox Recovery
+
+on:
+  push:
+    branches:
+      - fox
+      - fox-12.1
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build OrangeFox Recovery
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+
+    steps:
+    - name: Cleanup Runner Disk Space
+      uses: rokibhasansagar/slimhub_actions@main
+
+    - name: Setup Swap Space
+      uses: pierotofy/set-swap-space@master
+      with:
+        swap-size-gb: 12
+
+    - name: Checkout Device Tree
+      uses: actions/checkout@v4
+      with:
+        path: device/realme/RMX5079
+
+    - name: Setup Build Packages
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y git-core gnupg flex bison build-essential zip curl zlib1g-dev \
+          libc6-dev-i386 libncurses5 libncurses5-dev x11proto-core-dev libx11-dev lib32z1-dev libgl1-mesa-dev \
+          libxml2 libxml2-utils xsltproc unzip fontconfig python3 python-is-python3 rsync bc ccache \
+          schedtool lzop libssl-dev openjdk-11-jdk
+        sudo ln -sf /usr/bin/python3 /usr/bin/python || true
+
+    - name: Install Repo Tool
+      run: |
+        mkdir -p ~/bin
+        curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+        chmod a+x ~/bin/repo
+        sudo ln -sf ~/bin/repo /usr/bin/repo
+
+    - name: Initialize and Sync OrangeFox Manifest
+      run: |
+        mkdir -p ~/fox
+        cd ~/fox
+        git config --global user.name "Builder"
+        git config --global user.email "builder@github.com"
+        git config --global http.postBuffer 1048576000
+        git config --global http.lowSpeedLimit 1000
+        git config --global http.lowSpeedTime 60
+
+        repo init --depth=1 --no-repo-verify -u https://gitlab.com/OrangeFox/Manifest.git -b fox_12.1 || \
+        repo init --depth=1 --no-repo-verify -u https://github.com/OrangeFoxRecovery/manifest.git -b fox_12.1
+
+        echo "=== Syncing OrangeFox Sources with Auto-Retry ==="
+        SYNC_SUCCESS=0
+        for ATTEMPT in 1 2 3 4 5; do
+          echo ">>> repo sync attempt $ATTEMPT of 5..."
+          if [ $ATTEMPT -eq 1 ]; then
+            JOBS=$(nproc --all)
+          elif [ $ATTEMPT -eq 2 ]; then
+            JOBS=4
+            sleep 15
+          elif [ $ATTEMPT -eq 3 ]; then
+            JOBS=2
+            sleep 30
+          else
+            JOBS=1
+            sleep 45
+          fi
+
+          if repo sync -c -j$JOBS --force-sync --no-clone-bundle --no-tags --optimized-fetch --prune; then
+            echo ">>> repo sync succeeded on attempt $ATTEMPT!"
+            SYNC_SUCCESS=1
+            break
+          else
+            echo ">>> repo sync attempt $ATTEMPT failed, retrying..."
+          fi
+        done
+
+        if [ $SYNC_SUCCESS -ne 1 ]; then
+          echo "ERROR: repo sync failed after 5 attempts!"
+          exit 1
+        fi
+
+    - name: Copy Device Tree to Manifest
+      run: |
+        mkdir -p ~/fox/device/realme
+        cp -r device/realme/RMX5079 ~/fox/device/realme/
+
+    - name: Build OrangeFox Recovery
+      run: |
+        cd ~/fox
+        export ALLOW_MISSING_DEPENDENCIES=true
+        export FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER=1
+        source build/envsetup.sh
+
+        echo "=== Lunching Target ==="
+        lunch twrp_RMX5079-eng || lunch omni_RMX5079-eng
+
+        echo "=== Pre-populating DTB image ==="
+        mkdir -p out/target/product/RMX5079
+        cp -vf device/realme/RMX5079/prebuilt/dtb out/target/product/RMX5079/dtb.img || true
+        cp -vf device/realme/RMX5079/prebuilt/dtb out/target/product/RMX5079/dtb || true
+
+        echo "=== Fixing rsync conflict in build/make/core/Makefile ==="
+        sed -i 's/rsync -a --exclude=sdcard/rsync -a --exclude=vendor --exclude=sdcard/g' build/make/core/Makefile || true
+
+        echo "=== Building Recovery Image ==="
+        make recoveryimage -j$(nproc --all)
+
+        echo "=== Collecting Output Recovery Files ==="
+        mkdir -p $GITHUB_WORKSPACE/output
+        find out/target/product/ -name "recovery.img" -exec cp -vf {} $GITHUB_WORKSPACE/output/ \;
+        find out/target/product/ -name "OrangeFox*.zip" -exec cp -vf {} $GITHUB_WORKSPACE/output/ \; || true
+
+        if [ ! -f $GITHUB_WORKSPACE/output/recovery.img ]; then
+          echo "ERROR: recovery.img was not generated!"
+          exit 1
+        fi
+
+        echo "=== Output Files in Workspace ==="
+        ls -la $GITHUB_WORKSPACE/output/
+
+    - name: Upload Recovery Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: OrangeFox-RMX5079-Output
+        path: output/*
+        if-no-files-found: warn
+
+    - name: Generate Checksums & Release Tag
+      id: release_info
+      run: |
+        cd $GITHUB_WORKSPACE/output
+        sha256sum * > sha256.txt || true
+        TAG="v$(date +'%Y.%m.%d-%H%M')-fox"
+        echo "tag=$TAG" >> $GITHUB_OUTPUT
+        echo "date=$(date +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_OUTPUT
+
+    - name: Publish GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ steps.release_info.outputs.tag }}
+        name: OrangeFox Recovery RMX5079 - ${{ steps.release_info.outputs.date }}
+        draft: false
+        prerelease: false
+        body: |
+          ## 🦊 OrangeFox Recovery for Realme (RMX5079)
+
+          **Target Device:** Realme P3 5G / RMX5079 / RMX5070 (Qualcomm Snapdragon 6 Gen 4 SM6650 / volcano)
+          **OrangeFox Base:** Fox 12.1 (AOSP SDK 32 / Android 14 Compatible)
+          **Maintainer:** @zacxyonly
+          **Build Date:** ${{ steps.release_info.outputs.date }}
+
+          ---
+          ### 📦 File & Checksum:
+          Lihat file `sha256.txt` untuk memastikan keutuhan file hasil download.
+
+          ---
+          ### 🚀 Panduan Penggunaan (Booting):
+          > ⚠️ **PERINGATAN**: Gunakan perintah `fastboot boot` (JANGAN `fastboot flash`) untuk testing guna mencegah bootloop/softbrick!
+          ```bash
+          adb reboot bootloader
+          fastboot boot recovery.img
+          ```
+        files: |
+          output/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
