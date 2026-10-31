@@ -143,19 +143,37 @@ make recoveryimage -j$(nproc --all)
 
 ### 2. Build OrangeFox Recovery (Branch: `fox`)
 ```bash
-# Initialize OrangeFox manifest
-mkdir ~/fox && cd ~/fox
-repo init --depth=1 -u https://gitlab.com/OrangeFox/Manifest.git -b fox_12.1
-repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
+# Clone official OrangeFox sync tool and initialize environment
+git clone https://gitlab.com/orangefox/sync.git ~/orangefox_sync
+cd ~/orangefox_sync
+./orangefox_sync.sh --branch 12.1 --path ~/fox
 
 # Clone device tree into target path
-git clone -b fox https://github.com/zacxyonly/custom_recovery_realme_RMX5079.git device/realme/RMX5079
+git clone -b fox https://github.com/zacxyonly/custom_recovery_realme_RMX5079.git ~/fox/device/realme/RMX5079
 
 # Build
+cd ~/fox
+export ALLOW_MISSING_DEPENDENCIES=true
+export FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER=1
 source build/envsetup.sh
 lunch twrp_RMX5079-eng
 make recoveryimage -j$(nproc --all)
 ```
+
+---
+
+## ☁️ Manual Cloud Build (GitHub Actions)
+
+Automatic build on commit has been disabled to prevent quota waste. Builds are run on-demand via **Workflow Dispatch**:
+
+1. Open repository **[Actions](https://github.com/zacxyonly/custom_recovery_realme_RMX5079/actions)** tab.
+2. Select either **Build TWRP Recovery** or **Build OrangeFox Recovery**.
+3. Click the blue **"Run workflow"** button:
+   - **Branch**: Choose `main`, `twrp`, or `fox`.
+   - **Manifest Branch**: Select `twrp-12.1` / `twrp-14` (for TWRP) or `12.1` / `14.1` (for OrangeFox).
+   - **Custom Version Tag**: Optional (e.g. `v1.0-alpha` or leave empty for auto date-time tag).
+   - **Release Classification**: `pre-release`, `release`, or `test-build`.
+   - **Publish as GitHub Release**: Checkbox toggle (checked automatically generates a GitHub Release with assets & SHA256 checksums).
 
 ---
 
