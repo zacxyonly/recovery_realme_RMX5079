@@ -1,211 +1,62 @@
-# Unified Custom Recovery Tree for Realme P3 5G & Realme Neo 7x
+# TeamWin Recovery Project (TWRP) — Realme P3 5G & Neo 7x
 
 <div align="center">
 
-![Device Codename](https://img.shields.io/badge/Device-Realme_P3_5G_%7C_Neo_7x-blue?style=for-the-badge&logo=android)
-![Platform SoC](https://img.shields.io/badge/SoC-Qualcomm_Snapdragon_6_Gen_4_(SM6650)-orange?style=for-the-badge&logo=qualcomm)
-![Kernel Base](https://img.shields.io/badge/Kernel-Linux_6.1_GKI-green?style=for-the-badge&logo=linux)
-![License](https://img.shields.io/badge/License-Apache_2.0-red?style=for-the-badge)
+![Recovery](https://img.shields.io/badge/Recovery-TWRP_3.7+-blue?style=for-the-badge&logo=twrp)
+![Device](https://img.shields.io/badge/Device-Realme_P3_5G_%2F_Neo_7x-blue?style=for-the-badge)
+![SoC](https://img.shields.io/badge/SoC-Qualcomm_Snapdragon_6_Gen_4-red?style=for-the-badge)
 
-<br/>
+**Official device tree configuration for building TWRP on Qualcomm SM6650 (`volcano`).**
 
-[![Build TWRP Recovery](https://github.com/zacxyonly/custom_recovery_realme_RMX5079/actions/workflows/twrp-build.yml/badge.svg?branch=twrp)](https://github.com/zacxyonly/custom_recovery_realme_RMX5079/actions/workflows/twrp-build.yml)
-[![Build OrangeFox Recovery](https://github.com/zacxyonly/custom_recovery_realme_RMX5079/actions/workflows/orangefox-build.yml/badge.svg?branch=fox)](https://github.com/zacxyonly/custom_recovery_realme_RMX5079/actions/workflows/orangefox-build.yml)
-[![Latest Release](https://img.shields.io/github/v/release/zacxyonly/custom_recovery_realme_RMX5079?style=flat-square&color=blue)](https://github.com/zacxyonly/custom_recovery_realme_RMX5079/releases)
-[![Stars](https://img.shields.io/github/stars/zacxyonly/custom_recovery_realme_RMX5079?style=flat-square)](https://github.com/zacxyonly/custom_recovery_realme_RMX5079/stargazers)
-
-**Comprehensive device configuration tree for building TeamWin Recovery Project (TWRP) and OrangeFox Recovery Project (OFRP) for Qualcomm SM6650 (`volcano` / `dongfeng`) devices.**
+[📖 Hub Utama & Dokumentasi Lengkap (Branch: main)](https://github.com/zacxyonly/recovery_realme_RMX5079/tree/main)
 
 </div>
 
 ---
 
-## 🗂️ Branch Architecture
-
-This repository maintains separate branches for different custom recovery environments:
-
-| Branch | Recovery Flavor | Base Manifest | Target Status |
-| :--- | :--- | :--- | :--- |
-| **[`main`](https://github.com/zacxyonly/custom_recovery_realme_RMX5079/tree/main)** | **Overview & Default** | Unified Documentation | Active |
-| **[`twrp`](https://github.com/zacxyonly/custom_recovery_realme_RMX5079/tree/twrp)** | **TeamWin Recovery Project** | `minimal-manifest-twrp` (`twrp-12.1` / `twrp-14`) | Tested Build Available |
-| **[`fox`](https://github.com/zacxyonly/custom_recovery_realme_RMX5079/tree/fox)** | **OrangeFox Recovery Project** | `OrangeFox/Manifest` (`fox_12.1`) | Automated CI/CD |
+## 📱 Ringkasan Perangkat
+* **Model Komersial:** Realme P3 5G / Realme Neo 7x
+* **Kode Model:** `RMX5079`, `RMX5070`, `RMX5071`
+* **Codename:** `dongfeng` / `volcano`
+* **Chipset:** Qualcomm Snapdragon 6 Gen 4 (SM6650)
+* **Kernel:** Linux 6.1 GKI (`android14-11-o-g0c7c6eb7943d`)
+* **Layar:** 1080 x 2400 AMOLED (Center Punch-Hole)
 
 ---
 
-## 📱 Device Specifications
-
-| Parameter | Technical Details |
-| :--- | :--- |
-| **Commercial Names** | Realme P3 5G (Global) / Realme Neo 7x (China) |
-| **Model Numbers** | `RMX5079`, `RMX5070` (Global) / `RMX5071` (China) |
-| **Device Codename** | `dongfeng` / `volcano` |
-| **Manufacturer** | Realme / OPLUS |
-| **Chipset** | Qualcomm SM6650 Snapdragon 6 Gen 4 ("volcano") |
-| **CPU Configuration** | Octa-core (4x Cortex-A720 + 4x Cortex-A520, ARMv8.2-A / ARMv9) |
-| **Kernel Version** | Linux 6.1 GKI (`android14-11-o-g0c7c6eb7943d`) |
-| **Boot Header** | Version 4 (Virtual A/B) |
-| **Storage Architecture** | UFS 3.1 |
-| **Partition Scheme** | Dynamic Partitions (Super) - Primary: `erofs`, Fallback: `ext4` |
-| **OPLUS Specific Partitions** | `my_product`, `my_carrier`, `my_region`, `my_heytap`, `my_stock`, `my_preload`, `my_manifest`, `my_engineering`, `my_bigball` |
-| **Display Panel** | 1080 x 2400 AMOLED, 120Hz Refresh Rate (Center Punch-Hole) |
-| **Touchscreen Controllers** | FocalTech FT3518 (`oplus_bsp_tp_ft3518.ko`) / Synaptics TCM2 (`oplus_bsp_synaptics_tcm2.ko`) |
-| **Encryption Type** | Hardware-Backed File-Based Encryption (FBE v2) + WrappedKey |
+## ⚡ Fitur Utama Tree Ini
+* **Driver Touchscreen Utuh:** Memuat modul kernel `smem` -> `projectinfo` -> `tp_custom` -> `tp_common` -> IC Touchscreen (`ft3518` / `tcm2`).
+* **Inisialisasi USB & MTP:** Didukung ConfigFS USB resmi OPLUS (`idVendor 0x22d9`, `idProduct 0x2769`).
+* **Dukungan FBE v2 & Keystore:** Menyertakan blob dekripsi QSEECom dan spoofing versi security patch anti-rollback.
+* **Super Dynamic Partitions:** Mappings backup flashable image untuk `system`, `vendor`, `product`, `odm`, `system_ext`, dan partisi `my_*`.
 
 ---
 
-## ⚡ Feature Support Status
-
-- [x] Boot Image Header v4 unpacking & repacking
-- [x] Prebuilt GKI 6.1 Kernel integration (`Image`, `dtb`, `dtbo.img`)
-- [x] OPLUS BSP Touchscreen modular driver hierarchy (`smem` -> `projectinfo` -> `tp_custom` -> `tp_common` -> vendor IC)
-- [x] Super Dynamic Partitions mounting (`system`, `system_ext`, `product`, `vendor`, `odm`, `my_*`)
-- [x] Dual filesystem handling (`erofs` primary + `ext4` fallback)
-- [x] MicroSD Card & USB-OTG external storage access
-- [x] Fastbootd mode & ADB recovery interface
-- [x] Battery status & Backlight display control
-- [ ] Hardware-backed FBE v2 user data decryption (In progress)
-- [ ] MTP internal storage transfer (Awaiting field verification)
-
----
-
-## ⚠️ Disclaimer
-
-> [!WARNING]
-> Modifying device firmware and running custom recoveries involves inherent risks.
-> - **Always use `fastboot boot` for testing** before considering flashing permanently.
-> - The developers and contributors are not responsible for bricked hardware, bootloops, data loss, or voided warranties.
-> - Ensure all critical data is backed up before unlocking bootloaders or modifying partitions.
-
----
-
-## 🚀 Flashing & Usage Guide
-
-### Prerequisites
-1. **Unlocked Bootloader**: Bootloader must be officially unlocked (via Deep Testing).
-2. **Platform Tools**: Install the latest [Android SDK Platform-Tools](https://developer.android.com/tools/releases/platform-tools).
-3. **Recovery Image**: Download `recovery.img` from [GitHub Releases](https://github.com/zacxyonly/custom_recovery_realme_RMX5079/releases).
-
----
-
-### Step 1: Boot into Fastboot Mode
-1. Enable **Developer Options** and turn on **USB Debugging** on your phone.
-2. Connect your device to your PC and reboot to bootloader:
-   ```bash
-   adb reboot bootloader
-   ```
-   *Alternative*: Power off completely, then hold **Power + Volume Down** until the Fastboot screen appears.
-3. Verify connection:
-   ```bash
-   fastboot devices
-   ```
-
----
-
-### Step 2: Temporary Boot (Recommended & Safest)
-> [!IMPORTANT]
-> **DO NOT** directly run `fastboot flash recovery recovery.img` on your first attempt!  
-> Loading the recovery into RAM with `fastboot boot` ensures your stock recovery remains untouched. If anything freezes, simply reboot the device.
+## 🛠️ Cara Kompilasi Lokal
 
 ```bash
-fastboot boot recovery.img
-```
-
----
-
-### Step 3: Permanent Installation (Once Verified)
-Once touchscreen, display, and core functions are verified:
-* **Option A (Via Recovery Installer Zip)**:
-  Copy the `OrangeFox-*.zip` (or TWRP installer zip) to your MicroSD / USB-OTG and flash it directly from the recovery interface.
-* **Option B (Fastboot Flash)**:
-  ```bash
-  fastboot flash recovery recovery.img
-  ```
-
----
-
-## 🛠️ Building from Source
-
-### 1. Build TWRP Recovery (Branch: `twrp`)
-```bash
-# Initialize minimal TWRP manifest
+# 1. Inisialisasi minimal manifest TWRP
 mkdir ~/twrp && cd ~/twrp
 repo init --depth=1 -u https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp.git -b twrp-12.1
 repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
 
-# Clone device tree into target path
-git clone -b twrp https://github.com/zacxyonly/custom_recovery_realme_RMX5079.git device/realme/RMX5079
+# 2. Clone device tree branch twrp
+git clone -b twrp https://github.com/zacxyonly/recovery_realme_RMX5079.git device/realme/RMX5079
 
-# Build
+# 3. Jalankan build
 source build/envsetup.sh
 lunch twrp_RMX5079-eng
 make recoveryimage -j$(nproc --all)
 ```
 
-### 2. Build OrangeFox Recovery (Branch: `fox`)
+Hasil build berada di `out/target/product/RMX5079/recovery.img`.
+
+---
+
+## 🚀 Panduan Boot Testing (Aman)
+> ⚠️ **PERINGATAN**: Selalu gunakan `fastboot boot` terlebih dahulu untuk memastikan recovery berjalan dengan normal tanpa mengubah partisi recovery internal!
+
 ```bash
-# Clone official OrangeFox sync tool and initialize environment
-git clone https://gitlab.com/orangefox/sync.git ~/orangefox_sync
-cd ~/orangefox_sync
-./orangefox_sync.sh --branch 12.1 --path ~/fox
-
-# Clone device tree into target path
-git clone -b fox https://github.com/zacxyonly/custom_recovery_realme_RMX5079.git ~/fox/device/realme/RMX5079
-
-# Build
-cd ~/fox
-export ALLOW_MISSING_DEPENDENCIES=true
-export FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER=1
-source build/envsetup.sh
-lunch twrp_RMX5079-eng
-make recoveryimage -j$(nproc --all)
+adb reboot bootloader
+fastboot boot recovery.img
 ```
-
----
-
-## ☁️ Manual Cloud Build (GitHub Actions)
-
-Automatic build on commit has been disabled to prevent quota waste. Builds are run on-demand via **Workflow Dispatch**:
-
-1. Open repository **[Actions](https://github.com/zacxyonly/custom_recovery_realme_RMX5079/actions)** tab.
-2. Select either **Build TWRP Recovery** or **Build OrangeFox Recovery**.
-3. Click the blue **"Run workflow"** button:
-   - **Branch**: Choose `main`, `twrp`, or `fox`.
-   - **Manifest Branch**: Select `twrp-12.1` / `twrp-14` (for TWRP) or `12.1` / `14.1` (for OrangeFox).
-   - **Custom Version Tag**: Optional (e.g. `v1.0-alpha` or leave empty for auto date-time tag).
-   - **Release Classification**: `pre-release`, `release`, or `test-build`.
-   - **Publish as GitHub Release**: Checkbox toggle (checked automatically generates a GitHub Release with assets & SHA256 checksums).
-
----
-
-## 📋 Submitting Feedback & Logs
-
-Field logs from testers are crucial for ongoing refinement:
-* **TWRP / OrangeFox Recovery Log**:
-  ```bash
-  adb pull /tmp/recovery.log
-  ```
-* **Kernel DMESG Log**:
-  ```bash
-  adb shell dmesg > dmesg.txt
-  ```
-* **System Logcat**:
-  ```bash
-  adb logcat -d > logcat.txt
-  ```
-Submit issue reports with logs attached at [GitHub Issues](https://github.com/zacxyonly/custom_recovery_realme_RMX5079/issues).
-
----
-
-## 👥 Credits & Acknowledgements
-
-* **[TeamWin Project (TWRP)](https://twrp.me/)** - Core custom recovery foundation.
-* **[OrangeFox Recovery Project](https://orangefox.download/)** - Enhanced recovery framework & UI.
-* **[Minimal-Manifest-TWRP](https://github.com/minimal-manifest-twrp)** - Lightweight compilation environment.
-* **[LineageOS](https://lineageos.org/)** - Android open source base & hardware interfaces.
-* **Realme / OPLUS** - OEM kernel source drops and hardware platform drivers.
-
----
-
-<div align="center">
-<b>Maintained by <a href="https://github.com/zacxyonly">@zacxyonly</a></b>
-</div>
