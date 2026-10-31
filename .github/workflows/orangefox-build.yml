@@ -1,34 +1,11 @@
 name: Build OrangeFox Recovery
 
 on:
+  push:
+    branches:
+      - fox
+      - fox-12.1
   workflow_dispatch:
-    inputs:
-      fox_branch:
-        description: 'OrangeFox Manifest Branch'
-        required: true
-        default: 'fox_12.1'
-        type: choice
-        options:
-          - 'fox_12.1'
-      version_tag:
-        description: 'Custom Version Tag (leave empty for auto date-time)'
-        required: false
-        default: ''
-        type: string
-      release_type:
-        description: 'Release Classification'
-        required: true
-        default: 'pre-release'
-        type: choice
-        options:
-          - 'pre-release'
-          - 'release'
-          - 'test-build'
-      publish_release:
-        description: 'Publish as GitHub Release (uncheck for artifact-only)'
-        required: true
-        default: true
-        type: boolean
 
 jobs:
   build:
@@ -77,12 +54,8 @@ jobs:
         git config --global http.lowSpeedLimit 1000
         git config --global http.lowSpeedTime 60
 
-        BRANCH="${{ github.event.inputs.fox_branch }}"
-        echo "Using OrangeFox branch: $BRANCH"
-        echo "FOX_BRANCH=$BRANCH" >> $GITHUB_ENV
-
-        repo init --depth=1 --no-repo-verify -u https://gitlab.com/OrangeFox/Manifest.git -b $BRANCH || \
-        repo init --depth=1 --no-repo-verify -u https://github.com/OrangeFoxRecovery/manifest.git -b $BRANCH
+        repo init --depth=1 --no-repo-verify -u https://gitlab.com/OrangeFox/Manifest.git -b fox_12.1 || \
+        repo init --depth=1 --no-repo-verify -u https://github.com/OrangeFoxRecovery/manifest.git -b fox_12.1
 
         echo "=== Syncing OrangeFox Sources with Auto-Retry ==="
         SYNC_SUCCESS=0
@@ -157,46 +130,31 @@ jobs:
     - name: Upload Recovery Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: OrangeFox-RMX5079-${{ github.event.inputs.fox_branch }}
+        name: OrangeFox-RMX5079-Output
         path: output/*
         if-no-files-found: warn
 
-    - name: Process Checksums & Release Metadata
+    - name: Generate Checksums & Release Tag
       id: release_info
       run: |
         cd $GITHUB_WORKSPACE/output
         sha256sum * > sha256.txt || true
-
-        CUSTOM_TAG="${{ github.event.inputs.version_tag }}"
-        if [ -n "$CUSTOM_TAG" ]; then
-          TAG="$CUSTOM_TAG"
-        else
-          TAG="v$(date +'%Y.%m.%d-%H%M')-fox"
-        fi
-
+        TAG="v$(date +'%Y.%m.%d-%H%M')-fox"
         echo "tag=$TAG" >> $GITHUB_OUTPUT
         echo "date=$(date +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_OUTPUT
 
-        PRERELEASE=false
-        if [ "${{ github.event.inputs.release_type }}" != "release" ]; then
-          PRERELEASE=true
-        fi
-        echo "prerelease=$PRERELEASE" >> $GITHUB_OUTPUT
-
     - name: Publish GitHub Release
-      if: ${{ github.event.inputs.publish_release == 'true' || github.event.inputs.publish_release == true }}
       uses: softprops/action-gh-release@v2
       with:
         tag_name: ${{ steps.release_info.outputs.tag }}
-        name: OrangeFox Recovery ${{ steps.release_info.outputs.tag }} (${{ steps.release_info.outputs.date }})
+        name: OrangeFox Recovery RMX5079 - ${{ steps.release_info.outputs.date }}
         draft: false
-        prerelease: ${{ steps.release_info.outputs.prerelease == 'true' }}
+        prerelease: false
         body: |
           ## 🦊 OrangeFox Recovery for Realme (RMX5079)
 
           **Target Device:** Realme P3 5G / RMX5079 / RMX5070 (Qualcomm Snapdragon 6 Gen 4 SM6650 / volcano)
-          **OrangeFox Base:** ${{ github.event.inputs.fox_branch }}
-          **Release Classification:** ${{ github.event.inputs.release_type }}
+          **OrangeFox Base:** Fox 12.1 (AOSP SDK 32 / Android 14 Compatible)
           **Maintainer:** @zacxyonly
           **Build Date:** ${{ steps.release_info.outputs.date }}
 
