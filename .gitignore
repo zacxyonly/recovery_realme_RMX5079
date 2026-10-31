@@ -1,0 +1,26 @@
+# Android build artifacts
+*.img
+*.zip
+*.tar
+*.tar.gz
+*.sha256
+sha256.txt
+output/
+out/
+build.log
+
+# Repo & Repo sync artifacts
+.repo/
+.repo_fetchtimes.json
+
+# Toolchain & Temp files
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.iml
