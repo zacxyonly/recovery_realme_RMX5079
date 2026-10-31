@@ -1,9 +1,6 @@
 name: Build TWRP Recovery
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       twrp_branch:
@@ -12,9 +9,28 @@ on:
         default: 'twrp-12.1'
         type: choice
         options:
-          - twrp-12.1
-          - twrp-14.1
-          - twrp-14
+          - 'twrp-12.1'
+          - 'twrp-14.1'
+          - 'twrp-14'
+      version_tag:
+        description: 'Custom Version Tag (leave empty for auto date-time)'
+        required: false
+        default: ''
+        type: string
+      release_type:
+        description: 'Release Classification'
+        required: true
+        default: 'pre-release'
+        type: choice
+        options:
+          - 'pre-release'
+          - 'release'
+          - 'test-build'
+      publish_release:
+        description: 'Publish as GitHub Release (uncheck for artifact-only)'
+        required: true
+        default: true
+        type: boolean
 
 jobs:
   build:
@@ -63,11 +79,7 @@ jobs:
         git config --global http.lowSpeedLimit 1000
         git config --global http.lowSpeedTime 60
 
-        # Default ke twrp-12.1 (rekomendasi TWRP upstream untuk stabilitas & kompatibilitas kernel 6.x/boot v4)
-        BRANCH="twrp-12.1"
-        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-          BRANCH="${{ github.event.inputs.twrp_branch }}"
-        fi
+        BRANCH="${{ github.event.inputs.twrp_branch }}"
         echo "Using TWRP branch: $BRANCH"
         echo "TWRP_BRANCH=$BRANCH" >> $GITHUB_ENV
 
@@ -118,12 +130,10 @@ jobs:
         BRANCH="${TWRP_BRANCH:-twrp-12.1}"
         echo "=== Lunching Target (Branch: $BRANCH) ==="
         if [ "$BRANCH" = "twrp-14" ] || [ "$BRANCH" = "twrp-14.1" ]; then
-          # Fix missing build/release on twrp-14 minimal manifest
           if [ ! -d build/release ]; then
             echo "build/release not found in manifest; cloning AOSP build/release..."
             git clone --depth=1 -b android-14.0.0_r67 https://android.googlesource.com/platform/build/release build/release || true
           fi
-          # Prevent dumpvars fatal abort if release configs are missing
           if [ -f build/make/core/release_config.mk ]; then
             sed -i 's/\$(error No release config found for TARGET_RELEASE/\$(warning No release config found for TARGET_RELEASE/g' build/make/core/release_config.mk
           fi
@@ -138,7 +148,7 @@ jobs:
         cp -vf device/realme/RMX5079/prebuilt/dtb out/target/product/RMX5079/dtb || true
 
         echo "=== Fixing rsync conflict in build/make/core/Makefile ==="
-        sed -i 's/rsync -a --exclude=sdcard/rsync -a --exclude=vendor --exclude=sdcard/g' build/make/core/Makefile
+        sed -i 's/rsync -a --exclude=sdcard/rsync -a --exclude=vendor --exclude=sdcard/g' build/make/core/Makefile || true
 
         echo "=== Building Recovery Image ==="
         make recoveryimage -j$(nproc --all)
@@ -164,31 +174,46 @@ jobs:
     - name: Upload Recovery Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: TWRP-RMX5079-Output
+        name: TWRP-RMX5079-${{ github.event.inputs.twrp_branch }}
         path: output/*
         if-no-files-found: warn
 
-    - name: Generate Checksums & Release Tag
+    - name: Process Checksums & Release Metadata
       id: release_info
       run: |
         cd $GITHUB_WORKSPACE/output
         sha256sum *.img > sha256.txt || true
-        TAG="v$(date +'%Y.%m.%d-%H%M')"
+
+        CUSTOM_TAG="${{ github.event.inputs.version_tag }}"
+        if [ -n "$CUSTOM_TAG" ]; then
+          TAG="$CUSTOM_TAG"
+        else
+          TAG="v$(date +'%Y.%m.%d-%H%M')-twrp"
+        fi
+
         echo "tag=$TAG" >> $GITHUB_OUTPUT
         echo "date=$(date +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_OUTPUT
 
+        PRERELEASE=false
+        if [ "${{ github.event.inputs.release_type }}" != "release" ]; then
+          PRERELEASE=true
+        fi
+        echo "prerelease=$PRERELEASE" >> $GITHUB_OUTPUT
+
     - name: Publish GitHub Release
+      if: ${{ github.event.inputs.publish_release == 'true' || github.event.inputs.publish_release == true }}
       uses: softprops/action-gh-release@v2
       with:
         tag_name: ${{ steps.release_info.outputs.tag }}
-        name: TWRP Recovery RMX5079 - ${{ steps.release_info.outputs.date }}
+        name: TWRP Recovery ${{ steps.release_info.outputs.tag }} (${{ steps.release_info.outputs.date }})
         draft: false
-        prerelease: false
+        prerelease: ${{ steps.release_info.outputs.prerelease == 'true' }}
         body: |
           ## 📱 TWRP Recovery for Realme (RMX5079)
 
           **Target Device:** Realme P3 5G / RMX5079 / RMX5070 (Qualcomm Snapdragon 6 Gen 4 SM6650 / volcano)
-          **Android Base:** Android 14 (AOSP SDK 34)
+          **Manifest Branch:** ${{ github.event.inputs.twrp_branch }}
+          **Release Classification:** ${{ github.event.inputs.release_type }}
           **Build Date:** ${{ steps.release_info.outputs.date }}
 
           ---
