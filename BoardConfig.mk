@@ -144,3 +144,34 @@ BOARD_VENDOR_KERNEL_MODULES_LOAD := \
     oplus_bsp_tp_focal_common.ko \
     oplus_bsp_tp_ft3518.ko \
     oplus_bsp_synaptics_tcm2.ko
+
+# ---------------------------------------------------
+# OrangeFox Recovery Project (OFRP) Configuration
+# ---------------------------------------------------
+FOX_VERSION := "R12.1_0"
+OF_MAINTAINER := "zacxyonly"
+FOX_BUILD_DEVICE := "RMX5079"
+FOX_TARGET_DEVICES := "RMX5079,RMX5070,RMX5071,dongfeng"
+FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER := 1
+
+# Display & Notch (Realme P3 1080x2400 / Center Punch-Hole)
+OF_SCREEN_H := 2400
+OF_STATUS_H := 95
+OF_STATUS_INDENT_LEFT := 48
+OF_STATUS_INDENT_RIGHT := 48
+OF_CLOCK_POS := 1
+
+# Magisk & Security
+OF_USE_MAGISKBOOT := 1
+OF_USE_MAGISKBOOT_FOR_ALL_PATCHES := 1
+OF_SUPPORT_ALL_BLOCK_SU_SYSTEMS := 1
+OF_DONT_PATCH_ENCRYPTED_DEVICE := 1
+
+# Dynamic Partitions & Tools
+OF_DYNAMIC_FULL_SIZE := 9122611200
+OF_NO_TREBLE_COMPATIBILITY_CHECK := 1
+OF_ENABLE_LPTOOLS := 1
+
+# Features
+OF_FLASHLIGHT_ENABLE := 0
+OF_USE_GREEN_LED := 0
