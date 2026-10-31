@@ -1,33 +1,43 @@
-# TWRP user-facing partitions and storage flags
+# Android fstab file / TWRP flags
+# mount point  fstype device                                              device2              flags
+
+# Boot partitions
+/boot          emmc   /dev/block/bootdevice/by-name/boot                                       flags=slotselect;display="Boot";backup=1;flashimg=1
+/init_boot     emmc   /dev/block/bootdevice/by-name/init_boot                                  flags=slotselect;display="Init_Boot";backup=1;flashimg=1
+/vendor_boot   emmc   /dev/block/bootdevice/by-name/vendor_boot                                flags=slotselect;display="Vendor_Boot";backup=1;flashimg=1
+/dtbo          emmc   /dev/block/bootdevice/by-name/dtbo                                       flags=slotselect;display="DTBO";backup=1;flashimg=1
+/recovery      emmc   /dev/block/bootdevice/by-name/recovery                                   flags=slotselect;display="Recovery";backup=1;flashimg=1
+
+# VBMeta
+/vbmeta        emmc   /dev/block/bootdevice/by-name/vbmeta                                     flags=slotselect;display="VBMeta";backup=1;flashimg=1
+/vbmeta_system emmc   /dev/block/bootdevice/by-name/vbmeta_system                              flags=slotselect;display="VBMeta System";backup=1;flashimg=1
+/vbmeta_vendor emmc   /dev/block/bootdevice/by-name/vbmeta_vendor                              flags=slotselect;display="VBMeta Vendor";backup=1;flashimg=1
+
+# Super & Dynamic partition flashable images
+/super             emmc   /dev/block/bootdevice/by-name/super                                  flags=display="Super";backup=1;flashimg=1
+/system_image      emmc   /dev/block/mapper/system                                             flags=backup=0;flashimg=1;display="System Image"
+/vendor_image      emmc   /dev/block/mapper/vendor                                             flags=backup=0;flashimg=1;display="Vendor Image"
+/product_image     emmc   /dev/block/mapper/product                                            flags=backup=0;flashimg=1;display="Product Image"
+/odm_image         emmc   /dev/block/mapper/odm                                                flags=backup=0;flashimg=1;display="ODM Image"
+/system_ext_image  emmc   /dev/block/mapper/system_ext                                         flags=backup=0;flashimg=1;display="System_EXT Image"
+/vendor_dlkm_image emmc   /dev/block/mapper/vendor_dlkm                                        flags=backup=0;flashimg=1;display="Vendor DLKM Image"
+/system_dlkm_image emmc   /dev/block/mapper/system_dlkm                                        flags=backup=0;flashimg=1;display="System DLKM Image"
+
+# Modem & EFS
+/modem         emmc   /dev/block/bootdevice/by-name/modem                                      flags=slotselect;backup=1;display="Modem"
+/bluetooth     emmc   /dev/block/bootdevice/by-name/bluetooth                                  flags=slotselect;backup=1;subpartitionof=/modem
+/dsp           emmc   /dev/block/bootdevice/by-name/dsp                                        flags=slotselect;backup=1;subpartitionof=/modem
+/efs1          emmc   /dev/block/bootdevice/by-name/modemst1                                   flags=backup=1;display="EFS"
+/efs2          emmc   /dev/block/bootdevice/by-name/modemst2                                   flags=backup=1;subpartitionof=/efs1
+/efsc          emmc   /dev/block/bootdevice/by-name/fsc                                        flags=backup=1;subpartitionof=/efs1
+/efsg          emmc   /dev/block/bootdevice/by-name/fsg                                        flags=backup=1;subpartitionof=/efs1
+
+# Persist & Cache
+/persist       ext4   /dev/block/bootdevice/by-name/persist                                    flags=display="Persist";backup=1
+/persist_image emmc   /dev/block/bootdevice/by-name/persist                                    flags=display="Persist Image";backup=0;flashimg=1
+/cache         ext4   /dev/block/bootdevice/by-name/oplusreserve2                              flags=display="Cache / Oplus Reserve";backup=1
+/misc          emmc   /dev/block/bootdevice/by-name/misc
 
 # Removable storage
-/external_sd    vfat    /dev/block/mmcblk1p1    /dev/block/mmcblk1      flags=display="Micro SD Card";storage;wipeingui;removable
-/usb_otg        auto    /dev/block/sdg1         /dev/block/sdg          flags=display="USB-OTG";storage;wipeingui;removable
-
-# Flashable Images & Boot Partitions
-/boot           emmc    /dev/block/by-name/boot                         flags=display="Boot";backup=1;flashimg=1;slotselect
-/vendor_boot    emmc    /dev/block/by-name/vendor_boot                  flags=display="Vendor Boot";backup=1;flashimg=1;slotselect
-/init_boot      emmc    /dev/block/by-name/init_boot                    flags=display="Init Boot";backup=1;flashimg=1;slotselect
-/recovery       emmc    /dev/block/by-name/recovery                     flags=display="Recovery";backup=1;flashimg=1;slotselect
-/dtbo           emmc    /dev/block/by-name/dtbo                         flags=display="DTBO";backup=1;flashimg=1;slotselect
-/vbmeta         emmc    /dev/block/by-name/vbmeta                       flags=display="VBMeta";backup=1;flashimg=1;slotselect
-/vbmeta_system  emmc    /dev/block/by-name/vbmeta_system                flags=display="VBMeta System";backup=1;flashimg=1;slotselect
-/vbmeta_vendor  emmc    /dev/block/by-name/vbmeta_vendor                flags=display="VBMeta Vendor";backup=1;flashimg=1;slotselect
-
-# Super Partition
-/super          emmc    /dev/block/by-name/super                        flags=display="Super";backup=1;flashimg=1
-
-# Dynamic Partitions (Image backup)
-/system_image   emmc    /dev/block/bootdevice/by-name/system            flags=display="System Image";backup=1;flashimg=1
-/vendor_image   emmc    /dev/block/bootdevice/by-name/vendor            flags=display="Vendor Image";backup=1;flashimg=1
-/product_image  emmc    /dev/block/bootdevice/by-name/product           flags=display="Product Image";backup=1;flashimg=1
-/odm_image      emmc    /dev/block/bootdevice/by-name/odm               flags=display="ODM Image";backup=1;flashimg=1
-/my_product_image     emmc    /dev/block/bootdevice/by-name/my_product       flags=display="My Product Image";backup=1;flashimg=1
-/my_engineering_image emmc    /dev/block/bootdevice/by-name/my_engineering   flags=display="My Engineering Image";backup=1;flashimg=1
-
-# Modem, Cache & EFS
-/modem          emmc    /dev/block/bootdevice/by-name/modem             flags=display="Modem (Firmware)";backup=1;slotselect
-/modem_st1      emmc    /dev/block/bootdevice/by-name/modem_st1         flags=display="EFS (Modem ST1)";backup=1
-/modem_st2      emmc    /dev/block/bootdevice/by-name/modem_st2         flags=display="EFS (Modem ST2)";backup=1
-/persist        ext4    /dev/block/bootdevice/by-name/persist           flags=display="Persist";backup=1
-/cache          ext4    /dev/block/bootdevice/by-name/oplusreserve2     flags=display="Cache / Oplus Reserve";backup=1
+/usb_otg       vfat   /dev/block/sdg1                            /dev/block/sdg                flags=display="USB-OTG";storage;wipeingui;removable;fsflags="utf8"
+/external_sd   auto   /dev/block/mmcblk0p1                       /dev/block/mmcblk0            flags=display="MicroSD";storage;wipeingui;removable;fsflags="nosuid,nodev,utf8"
