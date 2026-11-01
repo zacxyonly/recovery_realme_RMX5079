@@ -96,13 +96,26 @@ jobs:
     - name: Build OrangeFox Recovery
       run: |
         cd ~/fox
+        export LC_ALL="C"
         export ALLOW_MISSING_DEPENDENCIES=true
         export FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER=1
+        export FOX_BUILD_DEVICE="RMX5079"
+        export FOX_BUILD_TYPE="Unofficial"
 
+        # Prevent OrangeFox patched envsetup.sh test from returning non-zero in bash -e
+        mkdir -p ~/fox/frameworks/base/services/core/xsd/vts
+        touch ~/fox/frameworks/base/services/core/xsd/vts/Android.mk
+
+        set +e
         source build/envsetup.sh
-
         echo "=== Lunching Target (fox_12.1) ==="
         lunch twrp_RMX5079-eng || lunch twrp_RMX5079-userdebug || lunch omni_RMX5079-eng
+        LUNCH_EXIT=$?
+        set -e
+        if [ $LUNCH_EXIT -ne 0 ]; then
+          echo "ERROR: Lunch target failed!"
+          exit 1
+        fi
 
         echo "=== Pre-populating DTB image ==="
         mkdir -p out/target/product/RMX5079

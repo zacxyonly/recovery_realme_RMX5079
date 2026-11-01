@@ -126,12 +126,19 @@ jobs:
     - name: Build TWRP Recovery
       run: |
         cd ~/twrp
+        export LC_ALL="C"
         export ALLOW_MISSING_DEPENDENCIES=true
 
+        set +e
         source build/envsetup.sh
-
         echo "=== Lunching Target (twrp-12.1) ==="
         lunch twrp_RMX5079-eng || lunch twrp_RMX5079-userdebug || lunch omni_RMX5079-eng
+        LUNCH_EXIT=$?
+        set -e
+        if [ $LUNCH_EXIT -ne 0 ]; then
+          echo "ERROR: Lunch target failed!"
+          exit 1
+        fi
 
         echo "=== Pre-populating DTB image ==="
         mkdir -p out/target/product/RMX5079
