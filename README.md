@@ -1,60 +1,37 @@
-# TeamWin Recovery Project (TWRP) — Realme P3 5G & Neo 7x
+# TWRP Device Tree — Realme P3 5G / Neo 7x
 
-<div align="center">
+[![Recovery](https://img.shields.io/badge/Recovery-TWRP_12.1-2563EB?style=for-the-badge&logo=twrp&logoColor=white)](https://twrp.me/)
+[![Device](https://img.shields.io/badge/Device-RMX5079_%7C_RMX5070-blue?style=for-the-badge&logo=android&logoColor=white)](https://github.com/zacxyonly/recovery_realme_RMX5079)
+[![Base](https://img.shields.io/badge/Base-Android_12.1_LTS-green?style=for-the-badge)](https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp)
 
-![Recovery](https://img.shields.io/badge/Recovery-TWRP_3.7+-blue?style=for-the-badge&logo=twrp)
-![Device](https://img.shields.io/badge/Device-Realme_P3_5G_%2F_Neo_7x-blue?style=for-the-badge)
-![SoC](https://img.shields.io/badge/SoC-Qualcomm_Snapdragon_6_Gen_4-red?style=for-the-badge)
+Dedicated TeamWin Recovery Project (TWRP) device tree for **Realme P3 5G** and **Realme Neo 7x** (`RMX5079` / `RMX5070` / `RMX5071`, SM6650 / `volcano`).
 
-**Official device tree configuration for building TWRP on Qualcomm SM6650 (`volcano`).**
-
-[📖 Hub Utama & Dokumentasi Lengkap (Branch: main)](https://github.com/zacxyonly/recovery_realme_RMX5079/tree/main)
-
-</div>
+[📖 Main Project Hub](https://github.com/zacxyonly/recovery_realme_RMX5079/tree/main)
 
 ---
 
-## 📱 Ringkasan Perangkat
-* **Model Komersial:** Realme P3 5G / Realme Neo 7x
-* **Kode Model:** `RMX5079`, `RMX5070`, `RMX5071`
-* **Codename:** `dongfeng` / `volcano`
-* **Chipset:** Qualcomm Snapdragon 6 Gen 4 (SM6650)
-* **Kernel:** Linux 6.1 GKI (`android14-11-o-g0c7c6eb7943d`)
-* **Layar:** 1080 x 2400 AMOLED (Center Punch-Hole)
-
----
-
-## ⚡ Fitur Utama Tree Ini
-* **Driver Touchscreen Utuh:** Memuat modul kernel `smem` -> `projectinfo` -> `tp_custom` -> `tp_common` -> IC Touchscreen (`ft3518` / `tcm2`).
-* **Inisialisasi USB & MTP:** Didukung ConfigFS USB resmi OPLUS (`idVendor 0x22d9`, `idProduct 0x2769`).
-* **Dukungan FBE v2 & Keystore:** Menyertakan blob dekripsi QSEECom dan spoofing versi security patch anti-rollback.
-* **Super Dynamic Partitions:** Mappings backup flashable image untuk `system`, `vendor`, `product`, `odm`, `system_ext`, dan partisi `my_*`.
-
----
-
-## 🛠️ Cara Kompilasi Lokal
+## 🛠️ Local Build Instructions
 
 ```bash
-# 1. Inisialisasi minimal manifest TWRP
+# 1. Initialize TWRP 12.1 minimal manifest
 mkdir ~/twrp && cd ~/twrp
 repo init --depth=1 -u https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp.git -b twrp-12.1
 repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
 
-# 2. Clone device tree branch twrp
+# 2. Clone this tree
 git clone -b twrp https://github.com/zacxyonly/recovery_realme_RMX5079.git device/realme/RMX5079
 
-# 3. Jalankan build
+# 3. Build recovery image
 source build/envsetup.sh
 lunch twrp_RMX5079-eng
 make recoveryimage -j$(nproc --all)
 ```
 
-Hasil build berada di `out/target/product/RMX5079/recovery.img`.
+Output: `out/target/product/RMX5079/recovery.img`
 
 ---
 
-## 🚀 Panduan Boot Testing (Aman)
-> ⚠️ **PERINGATAN**: Selalu gunakan `fastboot boot` terlebih dahulu untuk memastikan recovery berjalan dengan normal tanpa mengubah partisi recovery internal!
+## 🚀 Test Boot
 
 ```bash
 adb reboot bootloader
