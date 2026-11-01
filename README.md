@@ -1,10 +1,10 @@
-# TWRP Device Tree — Realme P3 5G / Neo 7x
+# TWRP Device Tree — Realme P3 5G (dongfeng)
 
 [![Recovery](https://img.shields.io/badge/Recovery-TWRP_12.1-2563EB?style=for-the-badge&logo=twrp&logoColor=white)](https://twrp.me/)
-[![Device](https://img.shields.io/badge/Device-RMX5079_%7C_RMX5070-blue?style=for-the-badge&logo=android&logoColor=white)](https://github.com/zacxyonly/recovery_realme_RMX5079)
+[![Device](https://img.shields.io/badge/Device-Realme_P3_5G_(dongfeng)-blue?style=for-the-badge&logo=android&logoColor=white)](https://github.com/zacxyonly/recovery_realme_RMX5079)
 [![Base](https://img.shields.io/badge/Base-Android_12.1_LTS-green?style=for-the-badge)](https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp)
 
-Dedicated TeamWin Recovery Project (TWRP) device tree for **Realme P3 5G** and **Realme Neo 7x** (`RMX5079` / `RMX5070` / `RMX5071`, SM6650 / `volcano`).
+Dedicated TeamWin Recovery Project (TWRP) device tree for **Realme P3 5G** (`RMX5079`, codename: `dongfeng` / SM6650).
 
 [📖 Main Project Hub](https://github.com/zacxyonly/recovery_realme_RMX5079/tree/main)
 

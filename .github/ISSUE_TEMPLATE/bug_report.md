@@ -7,7 +7,7 @@ assignees: zacxyonly
 ---
 
 **Device Information:**
-- Device Model: Realme P3 5G (`RMX5079` / `RMX5070`) / Realme Neo 7x (`RMX5071`)
+- Device Model: Realme P3 5G (`RMX5079`, codename: `dongfeng`)
 - Recovery Type: TWRP / OrangeFox
 - Recovery Build Date / Tag: 
 - Current Stock Firmware Version: (e.g. `RMX5079_11.F.26` / Android 14)
