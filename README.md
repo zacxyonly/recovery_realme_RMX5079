@@ -1,11 +1,11 @@
-# Custom Recovery for Realme P3 5G / Neo 7x
+# Custom Recovery for Realme P3 5G (dongfeng)
 
-[![Device](https://img.shields.io/badge/Device-Realme_P3_5G_%7C_Neo_7x-2563EB?style=for-the-badge&logo=android&logoColor=white)](https://github.com/zacxyonly/recovery_realme_RMX5079)
+[![Device](https://img.shields.io/badge/Device-Realme_P3_5G_(dongfeng)-2563EB?style=for-the-badge&logo=android&logoColor=white)](https://github.com/zacxyonly/recovery_realme_RMX5079)
 [![SoC](https://img.shields.io/badge/SoC-Snapdragon_6_Gen_4-EA580C?style=for-the-badge&logo=qualcomm&logoColor=white)](https://www.qualcomm.com/)
 [![Kernel](https://img.shields.io/badge/Kernel-Linux_6.1_GKI-16A34A?style=for-the-badge&logo=linux&logoColor=white)](https://kernel.org/)
 [![License](https://img.shields.io/badge/License-Apache_2.0-DC2626?style=for-the-badge)](LICENSE)
 
-Unified repository and automated CI/CD pipeline for building custom recoveries (**TWRP** and **OrangeFox**) on **Realme P3 5G** and **Realme Neo 7x** (`RMX5079` / `RMX5070` / `RMX5071`, SM6650 / `volcano`).
+Unified repository and automated CI/CD pipeline for building custom recoveries (**TWRP** and **OrangeFox**) specifically for **Realme P3 5G** (`RMX5079`, codename: `dongfeng` / SM6650).
 
 ---
 
@@ -23,8 +23,8 @@ Unified repository and automated CI/CD pipeline for building custom recoveries (
 
 | Attribute | Specification |
 |:---|:---|
-| **Device** | Realme P3 5G / Realme Neo 7x |
-| **Models** | `RMX5079`, `RMX5070`, `RMX5071` |
+| **Device** | Realme P3 5G |
+| **Model** | `RMX5079` |
 | **Codename** | `dongfeng` / `volcano` |
 | **SoC** | Qualcomm Snapdragon 6 Gen 4 (SM6650, 4nm) |
 | **Kernel** | Linux 6.1 GKI (Boot Header v4) |
