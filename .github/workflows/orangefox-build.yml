@@ -113,13 +113,8 @@ jobs:
                 with open(p, "w", encoding="utf-8") as f:
                     f.write(content)
                 print("Successfully patched vendor/twrp kernel.mk recipe bug via regex!")
-            elif "\t$(call twrp-depmod)" in content:
-                content = re.sub(r'(\t\$\(call twrp-depmod\))', r'@true', content)
-                with open(p, "w", encoding="utf-8") as f:
-                    f.write(content)
-                print("Neutralized tabbed twrp-depmod in kernel.mk!")
             else:
-                print("No kernel.mk recipe bug found.")
+                print("No kernel.mk recipe bug found, keeping vendor/twrp kernel.mk intact.")
         PYEOF
 
         # Android 14 Starlark / rbcrun & release_config stubbing
