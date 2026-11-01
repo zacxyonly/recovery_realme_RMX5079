@@ -10,7 +10,6 @@ on:
         type: choice
         options:
           - '12.1'
-          - '14.1'
       version_tag:
         description: 'Custom Version Tag (leave empty for auto date)'
         required: false
