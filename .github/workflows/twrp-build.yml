@@ -10,8 +10,6 @@ on:
         type: choice
         options:
           - 'twrp-12.1'
-          - 'twrp-14.1'
-          - 'twrp-14'
       version_tag:
         description: 'Custom Version Tag (leave empty for auto date)'
         required: false
@@ -130,48 +128,10 @@ jobs:
         cd ~/twrp
         export ALLOW_MISSING_DEPENDENCIES=true
 
-        echo "=== Patching vendor/twrp kernel.mk bug (if present) ==="
-        python3 - << 'PYEOF'
-        import os, re
-        p = os.path.expanduser("~/twrp/vendor/twrp/build/tasks/kernel.mk")
-        if os.path.exists(p):
-            with open(p, "r", encoding="utf-8") as f:
-                content = f.read()
-            pattern = r"(ifneq \(\$\(TW_LOAD_VENDOR_MODULES\),\)\s*\n\s*ifdef TARGET_PREBUILT_KERNEL\s*\n\s*\$\(call twrp-depmod\)\s*\n\s*endif\s*\n\s*endif\s*\n)(\$\(INSTALLED_KERNEL_TARGET\): \$\(KERNEL_BIN\)\s*\n\s*\$\(transform-prebuilt-to-target\))"
-            if re.search(pattern, content):
-                content = re.sub(pattern, r"\2\n\1", content)
-                with open(p, "w", encoding="utf-8") as f:
-                    f.write(content)
-                print("Successfully patched vendor/twrp kernel.mk recipe bug via regex!")
-            else:
-                print("No kernel.mk recipe bug found, keeping vendor/twrp kernel.mk intact.")
-        PYEOF
-
-        # Android 14 Starlark / rbcrun & release_config stubbing
-        echo "=== Neutralizing Starlark rbcrun dependency & stubbing release_config.mk ==="
-        mkdir -p out/starlark_results
-        printf '#!/bin/bash\nexit 0\n' > out/rbcrun
-        chmod +x out/rbcrun
-        touch out/starlark_results/out_release_config_entrypoint.scl.mk
-
-        if [ -f build/make/core/release_config.mk ]; then
-          printf '# Minimal TWRP stub for release_config\n_all_release_configs := trunk_staging ap2a\nFLAG_DECLARATION_FILES :=\nflag_value_files :=\n' > build/make/core/release_config.mk
-        fi
-
-        if [ -f build/make/core/envsetup.mk ]; then
-          sed -i 's/\$(error Starlark failed to run)/# \$(error Starlark failed to run)/g' build/make/core/envsetup.mk || true
-        fi
-
         source build/envsetup.sh
 
-        BRANCH="${TWRP_BRANCH:-twrp-12.1}"
-        echo "=== Lunching Target (Branch: $BRANCH) ==="
-        if [ "$BRANCH" = "twrp-14" ] || [ "$BRANCH" = "twrp-14.1" ]; then
-          export TARGET_RELEASE=trunk_staging
-          lunch twrp_RMX5079-trunk_staging-eng || lunch twrp_RMX5079-trunk_staging-userdebug || lunch twrp_RMX5079-ap2a-eng || lunch twrp_RMX5079-ap2a-userdebug || lunch omni_RMX5079-trunk_staging-eng || lunch twrp_RMX5079-eng || lunch omni_RMX5079-eng
-        else
-          lunch twrp_RMX5079-eng || lunch twrp_RMX5079-userdebug || lunch omni_RMX5079-eng
-        fi
+        echo "=== Lunching Target (twrp-12.1) ==="
+        lunch twrp_RMX5079-eng || lunch twrp_RMX5079-userdebug || lunch omni_RMX5079-eng
 
         echo "=== Pre-populating DTB image ==="
         mkdir -p out/target/product/RMX5079
