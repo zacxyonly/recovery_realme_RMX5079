@@ -51,7 +51,8 @@ jobs:
     - name: Checkout Device Tree
       uses: actions/checkout@v4
       with:
-        ref: 'twrp'
+        repository: ${{ github.repository }}
+        ref: twrp
         path: device/realme/RMX5079
 
     - name: Setup Build Packages
@@ -121,16 +122,42 @@ jobs:
       run: |
         mkdir -p ~/twrp/device/realme
         cp -r device/realme/RMX5079 ~/twrp/device/realme/
+        echo "=== Device Tree Contents in Manifest ==="
+        ls -la ~/twrp/device/realme/RMX5079/
 
     - name: Build TWRP Recovery
       run: |
         cd ~/twrp
         export ALLOW_MISSING_DEPENDENCIES=true
+
+        echo "=== Patching vendor/twrp kernel.mk bug (if present) ==="
+        python3 - << 'PYEOF'
+        import os, re
+        p = os.path.expanduser("~/twrp/vendor/twrp/build/tasks/kernel.mk")
+        if os.path.exists(p):
+            with open(p, "r", encoding="utf-8") as f:
+                content = f.read()
+            pattern = r"(ifneq \(\$\(TW_LOAD_VENDOR_MODULES\),\)\s*\n\s*ifdef TARGET_PREBUILT_KERNEL\s*\n\s*\$\(call twrp-depmod\)\s*\n\s*endif\s*\n\s*endif\s*\n)(\$\(INSTALLED_KERNEL_TARGET\): \$\(KERNEL_BIN\)\s*\n\s*\$\(transform-prebuilt-to-target\))"
+            if re.search(pattern, content):
+                content = re.sub(pattern, r"\2\n\1", content)
+                with open(p, "w", encoding="utf-8") as f:
+                    f.write(content)
+                print("Successfully patched vendor/twrp kernel.mk recipe bug via regex!")
+            elif "\t$(call twrp-depmod)" in content:
+                content = re.sub(r'(\t\$\(call twrp-depmod\))', r'@true', content)
+                with open(p, "w", encoding="utf-8") as f:
+                    f.write(content)
+                print("Neutralized tabbed twrp-depmod in kernel.mk!")
+            else:
+                print("No kernel.mk recipe bug found.")
+        PYEOF
+
         source build/envsetup.sh
 
         BRANCH="${TWRP_BRANCH:-twrp-12.1}"
         echo "=== Lunching Target (Branch: $BRANCH) ==="
         if [ "$BRANCH" = "twrp-14" ] || [ "$BRANCH" = "twrp-14.1" ]; then
+          export TARGET_RELEASE=ap2a
           if [ ! -d build/release ]; then
             echo "build/release not found in manifest; cloning AOSP build/release..."
             git clone --depth=1 -b android-14.0.0_r67 https://android.googlesource.com/platform/build/release build/release || true
@@ -138,9 +165,9 @@ jobs:
           if [ -f build/make/core/release_config.mk ]; then
             sed -i 's/\$(error No release config found for TARGET_RELEASE/\$(warning No release config found for TARGET_RELEASE/g' build/make/core/release_config.mk
           fi
-          lunch twrp_RMX5079-ap2a-eng || lunch twrp_RMX5079-trunk_staging-eng || lunch omni_RMX5079-ap2a-eng || lunch twrp_RMX5079-eng || lunch omni_RMX5079-eng
+          lunch twrp_RMX5079-ap2a-eng || lunch twrp_RMX5079-ap2a-userdebug || lunch twrp_RMX5079-trunk_staging-eng || lunch omni_RMX5079-ap2a-eng || lunch twrp_RMX5079-eng || lunch omni_RMX5079-eng
         else
-          lunch twrp_RMX5079-eng || lunch omni_RMX5079-eng
+          lunch twrp_RMX5079-eng || lunch twrp_RMX5079-userdebug || lunch omni_RMX5079-eng
         fi
 
         echo "=== Pre-populating DTB image ==="
