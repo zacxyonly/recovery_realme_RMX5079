@@ -169,7 +169,7 @@ jobs:
         body: |
           ## 🦊 OrangeFox Recovery for Realme (RMX5079)
 
-          **Target Device:** Realme P3 5G / RMX5079 / RMX5070 (Qualcomm Snapdragon 6 Gen 4 SM6650 / volcano)
+          **Target Device:** Realme P3 5G (RMX5079, dongfeng / SM6650)
           **OrangeFox Base:** ${{ github.event.inputs.fox_branch }}
           **Release Classification:** ${{ github.event.inputs.release_type }}
           **Maintainer:** @zacxyonly
