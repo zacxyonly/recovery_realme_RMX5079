@@ -122,10 +122,33 @@ jobs:
                 print("No kernel.mk recipe bug found.")
         PYEOF
 
+        # Android 14 Starlark / rbcrun & release_config stubbing
+        echo "=== Neutralizing Starlark rbcrun dependency & stubbing release_config.mk ==="
+        mkdir -p out/starlark_results
+        cat << 'EOF' > out/rbcrun
+#!/bin/bash
+exit 0
+EOF
+        chmod +x out/rbcrun
+        touch out/starlark_results/out_release_config_entrypoint.scl.mk
+
+        if [ -f build/make/core/release_config.mk ]; then
+          cat << 'EOF' > build/make/core/release_config.mk
+# Minimal OrangeFox stub for release_config
+_all_release_configs := trunk_staging ap2a
+FLAG_DECLARATION_FILES :=
+flag_value_files :=
+EOF
+        fi
+
+        if [ -f build/make/core/envsetup.mk ]; then
+          sed -i 's/\$(error Starlark failed to run)/# \$(error Starlark failed to run)/g' build/make/core/envsetup.mk || true
+        fi
+
         source build/envsetup.sh
 
         echo "=== Lunching Target ==="
-        lunch twrp_RMX5079-eng || lunch omni_RMX5079-eng
+        lunch twrp_RMX5079-trunk_staging-eng || lunch twrp_RMX5079-eng || lunch twrp_RMX5079-userdebug || lunch omni_RMX5079-eng
 
         echo "=== Pre-populating DTB image ==="
         mkdir -p out/target/product/RMX5079

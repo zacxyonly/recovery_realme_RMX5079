@@ -152,20 +152,36 @@ jobs:
                 print("No kernel.mk recipe bug found.")
         PYEOF
 
+        # Android 14 Starlark / rbcrun & release_config stubbing
+        echo "=== Neutralizing Starlark rbcrun dependency & stubbing release_config.mk ==="
+        mkdir -p out/starlark_results
+        cat << 'EOF' > out/rbcrun
+#!/bin/bash
+exit 0
+EOF
+        chmod +x out/rbcrun
+        touch out/starlark_results/out_release_config_entrypoint.scl.mk
+
+        if [ -f build/make/core/release_config.mk ]; then
+          cat << 'EOF' > build/make/core/release_config.mk
+# Minimal TWRP stub for release_config
+_all_release_configs := trunk_staging ap2a
+FLAG_DECLARATION_FILES :=
+flag_value_files :=
+EOF
+        fi
+
+        if [ -f build/make/core/envsetup.mk ]; then
+          sed -i 's/\$(error Starlark failed to run)/# \$(error Starlark failed to run)/g' build/make/core/envsetup.mk || true
+        fi
+
         source build/envsetup.sh
 
         BRANCH="${TWRP_BRANCH:-twrp-12.1}"
         echo "=== Lunching Target (Branch: $BRANCH) ==="
         if [ "$BRANCH" = "twrp-14" ] || [ "$BRANCH" = "twrp-14.1" ]; then
-          export TARGET_RELEASE=ap2a
-          if [ ! -d build/release ]; then
-            echo "build/release not found in manifest; cloning AOSP build/release..."
-            git clone --depth=1 -b android-14.0.0_r67 https://android.googlesource.com/platform/build/release build/release || true
-          fi
-          if [ -f build/make/core/release_config.mk ]; then
-            sed -i 's/\$(error No release config found for TARGET_RELEASE/\$(warning No release config found for TARGET_RELEASE/g' build/make/core/release_config.mk
-          fi
-          lunch twrp_RMX5079-ap2a-eng || lunch twrp_RMX5079-ap2a-userdebug || lunch twrp_RMX5079-trunk_staging-eng || lunch omni_RMX5079-ap2a-eng || lunch twrp_RMX5079-eng || lunch omni_RMX5079-eng
+          export TARGET_RELEASE=trunk_staging
+          lunch twrp_RMX5079-trunk_staging-eng || lunch twrp_RMX5079-trunk_staging-userdebug || lunch twrp_RMX5079-ap2a-eng || lunch twrp_RMX5079-ap2a-userdebug || lunch omni_RMX5079-trunk_staging-eng || lunch twrp_RMX5079-eng || lunch omni_RMX5079-eng
         else
           lunch twrp_RMX5079-eng || lunch twrp_RMX5079-userdebug || lunch omni_RMX5079-eng
         fi
