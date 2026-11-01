@@ -10,6 +10,10 @@ PRODUCT_MAKEFILES := \
 COMMON_LUNCH_CHOICES := \
     twrp_RMX5079-eng \
     twrp_RMX5079-userdebug \
+    twrp_RMX5079-ap2a-eng \
+    twrp_RMX5079-ap2a-userdebug \
     omni_RMX5079-eng \
-    omni_RMX5079-userdebug
+    omni_RMX5079-userdebug \
+    omni_RMX5079-ap2a-eng \
+    omni_RMX5079-ap2a-userdebug
 
