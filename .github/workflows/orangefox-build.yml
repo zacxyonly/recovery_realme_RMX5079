@@ -96,13 +96,26 @@ jobs:
     - name: Build OrangeFox Recovery
       run: |
         cd ~/fox
+        export LC_ALL="C"
         export ALLOW_MISSING_DEPENDENCIES=true
         export FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER=1
+        export FOX_BUILD_DEVICE="RMX5079"
+        export FOX_BUILD_TYPE="Unofficial"
 
+        # Prevent OrangeFox patched envsetup.sh test from returning non-zero in bash -e
+        mkdir -p ~/fox/frameworks/base/services/core/xsd/vts
+        touch ~/fox/frameworks/base/services/core/xsd/vts/Android.mk
+
+        set +e
         source build/envsetup.sh
-
         echo "=== Lunching Target (fox_12.1) ==="
         lunch twrp_RMX5079-eng || lunch twrp_RMX5079-userdebug || lunch omni_RMX5079-eng
+        LUNCH_EXIT=$?
+        set -e
+        if [ $LUNCH_EXIT -ne 0 ]; then
+          echo "ERROR: Lunch target failed!"
+          exit 1
+        fi
 
         echo "=== Pre-populating DTB image ==="
         mkdir -p out/target/product/RMX5079
@@ -167,25 +180,37 @@ jobs:
         draft: false
         prerelease: ${{ steps.release_info.outputs.prerelease == 'true' }}
         body: |
-          ## 🦊 OrangeFox Recovery for Realme (RMX5079)
+          # OrangeFox Recovery for Realme P3 5G (dongfeng)
 
-          **Target Device:** Realme P3 5G (RMX5079, dongfeng / SM6650)
-          **OrangeFox Base:** ${{ github.event.inputs.fox_branch }}
-          **Release Classification:** ${{ github.event.inputs.release_type }}
-          **Maintainer:** @zacxyonly
-          **Build Date:** ${{ steps.release_info.outputs.date }}
+          Automated build for **Realme P3 5G (`RMX5079`, codename: `dongfeng`)**.
 
           ---
-          ### 📦 File & Checksum:
-          Lihat file `sha256.txt` untuk memastikan keutuhan file hasil download.
+
+          ### 📱 Build Information
+          | Attribute | Detail |
+          |:---|:---|
+          | **Device** | Realme P3 5G (`RMX5079` / `dongfeng`) |
+          | **SoC** | Qualcomm Snapdragon 6 Gen 4 (`SM6650`) |
+          | **OrangeFox Base** | `${{ github.event.inputs.fox_branch }}` |
+          | **Classification** | `${{ github.event.inputs.release_type }}` |
+          | **Build Date** | `${{ steps.release_info.outputs.date }}` |
 
           ---
-          ### 🚀 Panduan Penggunaan (Booting):
-          > ⚠️ **PERINGATAN**: Gunakan perintah `fastboot boot` (JANGAN `fastboot flash`) untuk testing guna mencegah bootloop/softbrick!
+
+          ### 🚀 Boot Instructions (Testing)
+          > [!IMPORTANT]
+          > Always boot temporarily via fastboot before flashing directly:
+
           ```bash
           adb reboot bootloader
           fastboot boot recovery.img
           ```
+
+          ---
+
+          ### 📦 Verification
+          Verify file integrity before booting:
+          - Refer to `sha256.txt` included in the release assets.
         files: |
           output/*
       env:
