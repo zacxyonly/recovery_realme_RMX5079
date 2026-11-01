@@ -51,6 +51,8 @@ jobs:
     - name: Checkout Device Tree
       uses: actions/checkout@v4
       with:
+        repository: ${{ github.repository }}
+        ref: twrp
         path: device/realme/RMX5079
 
     - name: Setup Build Packages
@@ -120,6 +122,8 @@ jobs:
       run: |
         mkdir -p ~/twrp/device/realme
         cp -r device/realme/RMX5079 ~/twrp/device/realme/
+        echo "=== Device Tree Contents in Manifest ==="
+        ls -la ~/twrp/device/realme/RMX5079/
 
     - name: Build TWRP Recovery
       run: |

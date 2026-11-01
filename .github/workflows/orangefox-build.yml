@@ -50,6 +50,8 @@ jobs:
     - name: Checkout Device Tree
       uses: actions/checkout@v4
       with:
+        repository: ${{ github.repository }}
+        ref: orangefox
         path: device/realme/RMX5079
 
     - name: Setup Build Packages
@@ -89,6 +91,8 @@ jobs:
       run: |
         mkdir -p ~/fox/device/realme
         cp -r device/realme/RMX5079 ~/fox/device/realme/
+        echo "=== Device Tree Contents in Manifest ==="
+        ls -la ~/fox/device/realme/RMX5079/
 
     - name: Build OrangeFox Recovery
       run: |
