@@ -125,20 +125,12 @@ jobs:
         # Android 14 Starlark / rbcrun & release_config stubbing
         echo "=== Neutralizing Starlark rbcrun dependency & stubbing release_config.mk ==="
         mkdir -p out/starlark_results
-        cat << 'EOF' > out/rbcrun
-#!/bin/bash
-exit 0
-EOF
+        printf '#!/bin/bash\nexit 0\n' > out/rbcrun
         chmod +x out/rbcrun
         touch out/starlark_results/out_release_config_entrypoint.scl.mk
 
         if [ -f build/make/core/release_config.mk ]; then
-          cat << 'EOF' > build/make/core/release_config.mk
-# Minimal OrangeFox stub for release_config
-_all_release_configs := trunk_staging ap2a
-FLAG_DECLARATION_FILES :=
-flag_value_files :=
-EOF
+          printf '# Minimal OrangeFox stub for release_config\n_all_release_configs := trunk_staging ap2a\nFLAG_DECLARATION_FILES :=\nflag_value_files :=\n' > build/make/core/release_config.mk
         fi
 
         if [ -f build/make/core/envsetup.mk ]; then
