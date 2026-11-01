@@ -200,24 +200,37 @@ jobs:
         draft: false
         prerelease: ${{ steps.release_info.outputs.prerelease == 'true' }}
         body: |
-          ## 📱 TWRP Recovery for Realme (RMX5079)
+          # TWRP Recovery for Realme P3 5G (dongfeng)
 
-          **Target Device:** Realme P3 5G (RMX5079, dongfeng / SM6650)
-          **Manifest Branch:** ${{ github.event.inputs.twrp_branch }}
-          **Release Classification:** ${{ github.event.inputs.release_type }}
-          **Build Date:** ${{ steps.release_info.outputs.date }}
+          Automated build for **Realme P3 5G (`RMX5079`, codename: `dongfeng`)**.
 
           ---
-          ### 📦 File & Checksum:
-          Lihat file `sha256.txt` untuk memastikan keutuhan file hasil download.
+
+          ### 📱 Build Information
+          | Attribute | Detail |
+          |:---|:---|
+          | **Device** | Realme P3 5G (`RMX5079` / `dongfeng`) |
+          | **SoC** | Qualcomm Snapdragon 6 Gen 4 (`SM6650`) |
+          | **Manifest** | `${{ github.event.inputs.twrp_branch }}` |
+          | **Classification** | `${{ github.event.inputs.release_type }}` |
+          | **Build Date** | `${{ steps.release_info.outputs.date }}` |
 
           ---
-          ### 🚀 Panduan Penggunaan (Booting):
-          > ⚠️ **PERINGATAN**: Gunakan perintah `fastboot boot` (JANGAN `fastboot flash`) untuk testing guna mencegah bootloop/softbrick!
+
+          ### 🚀 Boot Instructions (Testing)
+          > [!IMPORTANT]
+          > Always boot temporarily via fastboot before flashing directly:
+
           ```bash
           adb reboot bootloader
           fastboot boot recovery.img
           ```
+
+          ---
+
+          ### 📦 Verification
+          Verify file integrity before booting:
+          - Refer to `sha256.txt` included in the release assets.
         files: |
           output/*
       env:
