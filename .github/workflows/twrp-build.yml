@@ -130,6 +130,7 @@ jobs:
         BRANCH="${TWRP_BRANCH:-twrp-12.1}"
         echo "=== Lunching Target (Branch: $BRANCH) ==="
         if [ "$BRANCH" = "twrp-14" ] || [ "$BRANCH" = "twrp-14.1" ]; then
+          export TARGET_RELEASE=ap2a
           if [ ! -d build/release ]; then
             echo "build/release not found in manifest; cloning AOSP build/release..."
             git clone --depth=1 -b android-14.0.0_r67 https://android.googlesource.com/platform/build/release build/release || true
@@ -137,9 +138,9 @@ jobs:
           if [ -f build/make/core/release_config.mk ]; then
             sed -i 's/\$(error No release config found for TARGET_RELEASE/\$(warning No release config found for TARGET_RELEASE/g' build/make/core/release_config.mk
           fi
-          lunch twrp_RMX5079-ap2a-eng || lunch twrp_RMX5079-trunk_staging-eng || lunch omni_RMX5079-ap2a-eng || lunch twrp_RMX5079-eng || lunch omni_RMX5079-eng
+          lunch twrp_RMX5079-ap2a-eng || lunch twrp_RMX5079-ap2a-userdebug || lunch twrp_RMX5079-trunk_staging-eng || lunch omni_RMX5079-ap2a-eng || lunch twrp_RMX5079-eng || lunch omni_RMX5079-eng
         else
-          lunch twrp_RMX5079-eng || lunch omni_RMX5079-eng
+          lunch twrp_RMX5079-eng || lunch twrp_RMX5079-userdebug || lunch omni_RMX5079-eng
         fi
 
         echo "=== Pre-populating DTB image ==="
