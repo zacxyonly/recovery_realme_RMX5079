@@ -183,10 +183,10 @@ BOARD_VENDOR_KERNEL_MODULES_LOAD := \
 # ---------------------------------------------------
 # OrangeFox Recovery Project (OFRP) Configuration
 # ---------------------------------------------------
-FOX_VERSION := "R12.1_0"
-OF_MAINTAINER := "zacxyonly"
-FOX_BUILD_DEVICE := "RMX5079"
-FOX_TARGET_DEVICES := "RMX5079,dongfeng"
+FOX_MAINTAINER_PATCH_VERSION := 1
+OF_MAINTAINER := zacxyonly
+FOX_BUILD_DEVICE := RMX5079
+FOX_TARGET_DEVICES := RMX5079,dongfeng
 FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER := 1
 
 # Display & Notch (Realme P3 1080x2400 / Center Punch-Hole)
