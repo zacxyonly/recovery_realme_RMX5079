@@ -1,4 +1,7 @@
 on early-init
+    # Ensure modules are discoverable at both /vendor/lib/modules and /lib/modules
+    mkdir /lib 0755 root root
+    symlink /vendor/lib/modules /lib/modules
     # NOTE: /vendor is NOT mounted yet at early-init.
     # Kernel modules are loaded later by TWRP via TW_LOAD_VENDOR_MODULES
     # after vendor is mounted. Do NOT insmod from /vendor here.

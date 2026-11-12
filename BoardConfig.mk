@@ -157,30 +157,30 @@ TARGET_RECOVERY_DEVICE_MODULES += \
     vendor.display.config@2.0
 
 # Vendor Kernel Modules
-# TW_LOAD_VENDOR_MODULES: loaded by TWRP at runtime (exact touch IC dependency order)
-TW_LOAD_VENDOR_MODULES := "smem.ko oplusboot.ko buildvariant.ko boot_mode.ko oplus_bsp_boot_projectinfo.ko oplus_charger_present.ko oplus_ftm_mode.ko panel_event_notifier.ko olc.ko device_info.ko oplus_bsp_tp_notify.ko oplus_bsp_fw_update.ko oplus_bsp_tp_custom.ko oplus_bsp_tp_common.ko oplus_bsp_tp_focal_common.ko oplus_bsp_tp_ft3518.ko oplus_bsp_synaptics_tcm2.ko oplus_bsp_tp_tcm_S3910.ko oplus_bsp_tp_hbp_syna_s3910.ko"
+# TW_LOAD_VENDOR_MODULES: loaded by TWRP at runtime (derived strictly from stock modules.load.recovery)
+TW_LOAD_VENDOR_MODULES := "smem.ko crypto-qti.ko oplusboot.ko oplus_ftm_mode.ko oplus_charger_present.ko buildvariant.ko oplus_bsp_boot_projectinfo.ko boot_mode.ko olc.ko device_info.ko ufshcd-crypto-qti.ko panel_event_notifier.ko oplus_bsp_fw_update.ko oplus_bsp_tp_notify.ko qseecom_proxy.ko oplus_bsp_tp_common.ko oplus_bsp_tp_custom.ko oplus_bsp_tp_focal_common.ko oplus_bsp_tp_ft3518.ko"
 
 # BOARD_VENDOR_KERNEL_MODULES_LOAD: loaded during first stage init
 BOARD_VENDOR_KERNEL_MODULES_LOAD := \
     smem.ko \
+    crypto-qti.ko \
     oplusboot.ko \
-    buildvariant.ko \
-    boot_mode.ko \
-    oplus_bsp_boot_projectinfo.ko \
-    oplus_charger_present.ko \
     oplus_ftm_mode.ko \
-    panel_event_notifier.ko \
+    oplus_charger_present.ko \
+    buildvariant.ko \
+    oplus_bsp_boot_projectinfo.ko \
+    boot_mode.ko \
     olc.ko \
     device_info.ko \
-    oplus_bsp_tp_notify.ko \
+    ufshcd-crypto-qti.ko \
+    panel_event_notifier.ko \
     oplus_bsp_fw_update.ko \
-    oplus_bsp_tp_custom.ko \
+    oplus_bsp_tp_notify.ko \
+    qseecom_proxy.ko \
     oplus_bsp_tp_common.ko \
+    oplus_bsp_tp_custom.ko \
     oplus_bsp_tp_focal_common.ko \
-    oplus_bsp_tp_ft3518.ko \
-    oplus_bsp_synaptics_tcm2.ko \
-    oplus_bsp_tp_tcm_S3910.ko \
-    oplus_bsp_tp_hbp_syna_s3910.ko
+    oplus_bsp_tp_ft3518.ko
 
 # ---------------------------------------------------
 # OrangeFox Recovery Project (OFRP) Configuration
